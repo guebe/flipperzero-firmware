@@ -5,6 +5,7 @@
 #include <dolphin/dolphin.h>
 #include <notification/notification.h>
 #include <notification/notification_messages.h>
+#include <infrared_transmit.h>
 
 typedef struct {
     //    +-----x
@@ -41,7 +42,7 @@ typedef enum {
     DirectionLeft,
 } Direction;
 
-#define MAX_SNAKE_LEN 253
+#define MAX_SNAKE_LEN 100
 
 typedef struct {
     Point points[MAX_SNAKE_LEN];
@@ -84,11 +85,65 @@ const NotificationSequence sequence_fail = {
     NULL,
 };
 
-const NotificationSequence sequence_eat = {
+NotificationSequence sequence_eat = {
     &message_note_c7,
-    &message_delay_50,
+    &message_delay_500,
     &message_sound_off,
     NULL,
+};
+
+static const NotificationSequence sequence_all = {
+&message_note_a0,  &message_note_as3, &message_note_b6, &message_note_cs0, &message_note_d3,  &message_note_ds6, &message_note_f0,  &message_note_fs3, &message_note_g6,
+&message_note_a1,  &message_note_as4, &message_note_b7, &message_note_cs1, &message_note_d4,  &message_note_ds7, &message_note_f1,  &message_note_fs4, &message_note_g7,
+&message_note_a2,  &message_note_as5, &message_note_b8, &message_note_cs2, &message_note_d5,  &message_note_ds8, &message_note_f2,  &message_note_fs5, &message_note_g8,
+&message_note_a3,  &message_note_as6, &message_note_c0, &message_note_cs3, &message_note_d6,  &message_note_e0,  &message_note_f3,  &message_note_fs6, &message_note_gs0,
+&message_note_a4,  &message_note_as7, &message_note_c1, &message_note_cs4, &message_note_d7,  &message_note_e1,  &message_note_f4,  &message_note_fs7, &message_note_gs1,
+&message_note_a5,  &message_note_as8, &message_note_c2, &message_note_cs5, &message_note_d8,  &message_note_e2,  &message_note_f5,  &message_note_fs8, &message_note_gs2,
+&message_note_a6,  &message_note_b0,  &message_note_c3, &message_note_cs6, &message_note_ds0, &message_note_e3,  &message_note_f6,  &message_note_g0,  &message_note_gs3,
+&message_note_a7,  &message_note_b1,  &message_note_c4, &message_note_cs7, &message_note_ds1, &message_note_e4,  &message_note_f7,  &message_note_g1,  &message_note_gs4,
+&message_note_a8,  &message_note_b2,  &message_note_c5, &message_note_cs8, &message_note_ds2, &message_note_e5,  &message_note_f8,  &message_note_g2,  &message_note_gs5,
+&message_note_as0, &message_note_b3,  &message_note_c6, &message_note_d0,  &message_note_ds3, &message_note_e6,  &message_note_fs0, &message_note_g3,  &message_note_gs6,
+&message_note_as1, &message_note_b4,  &message_note_c7, &message_note_d1,  &message_note_ds4, &message_note_e7,  &message_note_fs1, &message_note_g4,  &message_note_gs7,
+&message_note_as2, &message_note_b5,  &message_note_c8, &message_note_d2,  &message_note_ds5, &message_note_e8,  &message_note_fs2, &message_note_g5,  &message_note_gs8,
+};
+
+static const InfraredMessage ir_all[] = {
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000058UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000059UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000045UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000044UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000054UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000055UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000049UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000048UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000050UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000051UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000004DUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000004CUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000001CUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000001DUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000001EUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000001FUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000018UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x00000019UL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000001AUL, true },
+{ InfraredProtocolNEC, 0x00000000UL, 0x0000001BUL, true },
+};
+
+static const InfraredMessage ir_flash = {
+InfraredProtocolNEC, 0x00000000UL, 0x0000000BUL, true
+};
+
+static const InfraredMessage ir_quick = {
+InfraredProtocolNEC, 0x00000000UL, 0x00000017UL, true
+};
+
+static const InfraredMessage ir_power = {
+InfraredProtocolNEC, 0x00000000UL, 0x00000040UL, true
+};
+
+static const InfraredMessage ir_white = {
+InfraredProtocolNEC, 0x00000000UL, 0x00000044UL, true
 };
 
 static void snake_game_render_callback(Canvas* const canvas, void* ctx) {
@@ -283,6 +338,8 @@ static void
         } else if(snake_state->state == GameStateLastChance) {
             snake_state->state = GameStateGameOver;
             notification_message_block(notification, &sequence_fail);
+            infrared_send(&ir_flash, 2);
+            infrared_send(&ir_quick, 2);
             return;
         }
     } else {
@@ -295,6 +352,8 @@ static void
     if(crush) {
         snake_state->state = GameStateGameOver;
         notification_message_block(notification, &sequence_fail);
+        infrared_send(&ir_flash, 2);
+        infrared_send(&ir_quick, 2);
         return;
     }
 
@@ -304,6 +363,8 @@ static void
         if(snake_state->len >= MAX_SNAKE_LEN) {
             snake_state->state = GameStateGameOver;
             notification_message_block(notification, &sequence_fail);
+            infrared_send(&ir_flash, 2);
+            infrared_send(&ir_quick, 2);
             return;
         }
     }
@@ -311,8 +372,17 @@ static void
     snake_game_move_snake(snake_state, next_step);
 
     if(eatFruit) {
+        static unsigned int i = 0;
+        static unsigned int j = 0;
+
         snake_state->fruit = snake_game_get_new_fruit(snake_state);
         notification_message(notification, &sequence_eat);
+
+        sequence_eat[0] = sequence_all[i];
+        i = (i + 1) % (sizeof(sequence_all) / sizeof(sequence_all[0]));
+
+        infrared_send(&ir_all[j], 1);
+        j = (j + 1) % (sizeof(ir_all) / sizeof(ir_all[0]));
     }
 }
 
@@ -347,6 +417,9 @@ int32_t snake_game_app(void* p) {
     notification_message_block(notification, &sequence_display_backlight_enforce_on);
 
     DOLPHIN_DEED(DolphinDeedPluginGameStart);
+
+    infrared_send(&ir_power, 1);
+    infrared_send(&ir_white, 1);
 
     SnakeEvent event;
     for(bool processing = true; processing;) {
